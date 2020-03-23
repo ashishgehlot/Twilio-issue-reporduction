@@ -21,33 +21,16 @@ export class HomeComponent implements OnInit {
       const localParticipant = room.localParticipant;
       console.log(`Connected to the Room as LocalParticipant "${localParticipant.identity}"`);
 
-      // Log any Participants already connected to the Room
-      room.participants.forEach(participant => {
-        console.log(`Participant "${participant.identity}" is connected to the Room`);
-      });
+      // Handle any Participants already connected to the Room
+      room.participants.forEach(participantConnected);
 
-      room.on('participantConnected', participant => {
-
-        participant.tracks.forEach(publication => {
-          if (publication.isSubscribed) {
-            const track = publication.track;
-            console.log(track);
-            document.getElementById('callee').appendChild(track.attach());
-          }
-        });
-
-        participant.on('trackSubscribed', track => {
-            console.log(track);
-            document.getElementById('callee').appendChild(track.attach());
-        });
-
-
-      });
+      // Handle any Participants that will join the Room in the future.
+      room.on('participantConnected', participantConnected);
 
       room.on('participantDisconnected', participant => {
       });
 
-      room.on('disconnected', room => {
+      room.on('disconnected', () => {
         // Detach the local media elements
         room.localParticipant.tracks.forEach(publication => {
           const attachedElements = publication.track.detach();
@@ -64,5 +47,23 @@ export class HomeComponent implements OnInit {
       localMediaContainer.appendChild(track.attach());
     });
   }
+}
 
+function trackSubscribed(track) {
+  console.log('Subscribed to RemoteTrack:', track);
+  document.getElementById('callee').appendChild(track.attach());
+}
+
+function participantConnected(participant) {
+  console.log(`Participant "${participant.identity}" is connected to the Room`);
+
+  // Handle Tracks that are already subscribed.
+  participant.tracks.forEach(publication => {
+    if (publication.isSubscribed) {
+      trackSubscribed(publication.track);
+    }
+  });
+
+  // Handle Tracks that are subscribed in the future.
+  participant.on('trackSubscribed', trackSubscribed);
 }
