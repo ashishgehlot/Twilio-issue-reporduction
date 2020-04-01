@@ -1,22 +1,30 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { connect, createLocalVideoTrack } from 'twilio-video';
+import { ViewEncapsulation } from '@angular/compiler/src/compiler_facade_interface';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
 
   constructor(private activatedRoute: ActivatedRoute) { }
 
+  token: string;
+
   ngOnInit(): void {
 
-    const token = this.activatedRoute.snapshot.queryParamMap.get('TOKEN');
-    console.log(token);
+    createLocalVideoTrack().then(track => {
+      const localMediaContainer = document.getElementById('caller');
+      localMediaContainer.appendChild(track.attach());
+    });
+  }
 
-    connect(token, { name: 'my-new-room' }).then(room => {
+  ConnectToRoom() {
+    console.log(this.token);
+    connect(this.token, { name: 'my-new-room' }).then(room => {
       // Log your Client's LocalParticipant in the Room
       const localParticipant = room.localParticipant;
       console.log(`Connected to the Room as LocalParticipant "${localParticipant.identity}"`);
@@ -42,11 +50,8 @@ export class HomeComponent implements OnInit {
       console.error(`Unable to connect to Room: ${error.message}`);
     });
 
-    createLocalVideoTrack().then(track => {
-      const localMediaContainer = document.getElementById('caller');
-      localMediaContainer.appendChild(track.attach());
-    });
   }
+
 }
 
 function trackSubscribed(track) {
