@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { connect, createLocalVideoTrack } from 'twilio-video';
-import { ViewEncapsulation } from '@angular/compiler/src/compiler_facade_interface';
+import { connect, createLocalTracks } from 'twilio-video';
 
 @Component({
   selector: 'app-home',
@@ -13,18 +12,25 @@ export class HomeComponent implements OnInit {
   constructor(private activatedRoute: ActivatedRoute) { }
 
   token: string;
+  localTracks = null;
 
   ngOnInit(): void {
 
-    createLocalVideoTrack().then(track => {
-      const localMediaContainer = document.getElementById('caller');
-      localMediaContainer.appendChild(track.attach());
+    createLocalTracks().then(tracks => {
+      this.localTracks = tracks;
+      tracks.forEach(track => {
+        if (track.kind == 'video') {
+          const localMediaContainer = document.getElementById('caller');
+          localMediaContainer.appendChild(track.attach());
+        }
+      });
     });
+
   }
 
   ConnectToRoom() {
     console.log(this.token);
-    connect(this.token, { name: 'my-new-room', logLevel: "debug" }).then(room => {
+    connect(this.token, { name: 'my-new-room', logLevel: "debug", tracks: this.localTracks }).then(room => {
       // Log your Client's LocalParticipant in the Room
       const localParticipant = room.localParticipant;
       console.log(`Connected to the Room as LocalParticipant "${localParticipant.identity}"`);
