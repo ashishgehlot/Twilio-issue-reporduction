@@ -24,7 +24,7 @@ export class HomeComponent implements OnInit {
 
   ConnectToRoom() {
     console.log(this.token);
-    connect(this.token, { name: 'my-new-room' }).then(room => {
+    connect(this.token, { name: 'my-new-room', logLevel: "debug" }).then(room => {
       // Log your Client's LocalParticipant in the Room
       const localParticipant = room.localParticipant;
       console.log(`Connected to the Room as LocalParticipant "${localParticipant.identity}"`);

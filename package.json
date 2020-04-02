@@ -21,7 +21,7 @@
     "@angular/router": "~9.0.6",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
-    "twilio-video": "^2.0.0",
+    "twilio-video": "^2.3.0",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
